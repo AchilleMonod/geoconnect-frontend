@@ -366,6 +366,9 @@ export interface DevisVersionDTO {
   delaiMaxIntervention: number;
   delaiMaxRendu: number;
   createdAt: string;
+  statut?: 'EN_ATTENTE' | 'ACCEPTEE' | 'REFUSEE';
+  commentaireBureau?: string;
+  motifRefusClient?: string;
 }
 
 // ─── Référentiel ─────────────────────────────────────────────────────────────

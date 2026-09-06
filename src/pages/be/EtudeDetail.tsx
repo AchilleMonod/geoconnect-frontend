@@ -106,6 +106,7 @@ export default function BureauEtudeDetail() {
   const infoCard = (<div className="space-y-4">
     {etude.id != null && etat === 'DEVIS_VALIDE' && <DevisNegotiationBE
       etudeId={etude.id} devisSigneId={etude.devisSigneId}
+      prixInitial={prop?.prix} delaiInterventionInitial={prop?.delaiMaxIntervention} delaiRenduInitial={prop?.delaiMaxRendu}
       run={withAction} onVersionCreated={() => setDevisVersionsRevision(value => value + 1)}
     />}
     {etude.id != null && <DevisVersionsCard etudeId={etude.id} refreshKey={devisVersionsRevision} />}
@@ -193,8 +194,9 @@ export default function BureauEtudeDetail() {
   );
 }
 
-export function DevisNegotiationBE({ etudeId, devisSigneId, run, onVersionCreated }: Readonly<{
+export function DevisNegotiationBE({ etudeId, devisSigneId, prixInitial, delaiInterventionInitial, delaiRenduInitial, run, onVersionCreated }: Readonly<{
   etudeId: number; devisSigneId?: number;
+  prixInitial?: number; delaiInterventionInitial?: number; delaiRenduInitial?: number;
   run: (action: () => Promise<unknown>, key?: string) => Promise<void>;
   onVersionCreated: () => void;
 }>) {
@@ -202,6 +204,10 @@ export function DevisNegotiationBE({ etudeId, devisSigneId, run, onVersionCreate
   const [showValidationModal, setShowValidationModal] = useState(false);
   const [showVersionModal, setShowVersionModal] = useState(false);
   const [validationLoading, setValidationLoading] = useState(false);
+  const [prix, setPrix] = useState(String(prixInitial ?? ''));
+  const [delaiIntervention, setDelaiIntervention] = useState(String(delaiInterventionInitial ?? ''));
+  const [delaiRendu, setDelaiRendu] = useState(String(delaiRenduInitial ?? ''));
+  const [commentaireBureau, setCommentaireBureau] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const fileInputId = `nouveau-devis-${etudeId}`;
   const confirmerValidation = async () => {
@@ -226,7 +232,14 @@ export function DevisNegotiationBE({ etudeId, devisSigneId, run, onVersionCreate
       onCancel={() => setShowValidationModal(false)}
     />}
   </CardContent></Card>;
-  return <Card><CardHeader><CardTitle className="text-xs">Proposer une nouvelle version</CardTitle></CardHeader><CardContent className="space-y-2">
+  const valeursValides = Number(prix) >= 0 && Number(delaiIntervention) > 0 && Number(delaiRendu) > 0 && commentaireBureau.trim().length > 0;
+  return <Card><CardHeader><CardTitle className="text-xs">Proposer une nouvelle version</CardTitle></CardHeader><CardContent className="space-y-3">
+    <div className="grid grid-cols-3 gap-2">
+      <label className="text-xs text-slate-600">Prix (€)<input aria-label="Nouveau prix" type="number" min="0" step="0.01" value={prix} onChange={e => setPrix(e.target.value)} className="mt-1 w-full rounded border border-slate-300 px-2 py-1.5 text-xs" /></label>
+      <label className="text-xs text-slate-600">Délai intervention (sem.)<input aria-label="Nouveau délai d'intervention" type="number" min="1" value={delaiIntervention} onChange={e => setDelaiIntervention(e.target.value)} className="mt-1 w-full rounded border border-slate-300 px-2 py-1.5 text-xs" /></label>
+      <label className="text-xs text-slate-600">Délai rendu (sem.)<input aria-label="Nouveau délai de rendu" type="number" min="1" value={delaiRendu} onChange={e => setDelaiRendu(e.target.value)} className="mt-1 w-full rounded border border-slate-300 px-2 py-1.5 text-xs" /></label>
+    </div>
+    <label className="block text-xs text-slate-600">Commentaire explicatif<textarea aria-label="Commentaire explicatif" value={commentaireBureau} onChange={e => setCommentaireBureau(e.target.value)} rows={3} className="mt-1 w-full rounded border border-slate-300 px-2 py-1.5 text-xs" /></label>
     <span className="block text-[10px] font-bold uppercase text-slate-500">Nouveau devis (PDF)</span>
     <div className="flex items-center gap-2">
       <label htmlFor={fileInputId} className="flex min-w-0 flex-1 cursor-pointer items-center gap-2 rounded-md border border-dashed border-slate-300 px-3 py-2 transition-colors hover:bg-slate-50">
@@ -242,17 +255,18 @@ export function DevisNegotiationBE({ etudeId, devisSigneId, run, onVersionCreate
       </button>}
     </div>
     <input ref={fileInputRef} id={fileInputId} type="file" accept="application/pdf" aria-label="Nouveau devis PDF" className="hidden" onChange={e => setFile(e.target.files?.[0] ?? null)} />
-    <p className="text-xs text-slate-500">Le prix et les délais convenus restent inchangés. Ce PDF remplacera la version précédente auprès du client.</p>
-    <Button disabled={!file} onClick={() => file && setShowVersionModal(true)}>Publier la nouvelle version</Button>
+    <Button disabled={!file || !valeursValides} onClick={() => file && setShowVersionModal(true)}>Publier la nouvelle version</Button>
     {showVersionModal && file && <ConfirmModal
       title="Confirmer la publication"
       message="Êtes-vous sûr de vouloir publier cette nouvelle version du devis ? Elle remplacera la version précédente auprès du client."
+      extra={<div className="rounded bg-slate-50 p-3 text-sm text-slate-700"><p><strong>Prix :</strong> {prix} €</p><p><strong>Délai d'intervention :</strong> {delaiIntervention} sem.</p><p><strong>Délai de rendu :</strong> {delaiRendu} sem.</p><p><strong>Commentaire :</strong> {commentaireBureau}</p></div>}
       confirmLabel="Publier la nouvelle version"
       isLoading={false}
       onConfirm={() => void run(async () => {
-      await proposerDevisVersion(etudeId, file);
+      await proposerDevisVersion(etudeId, file, { prix: Number(prix), delaiMaxIntervention: Number(delaiIntervention), delaiMaxRendu: Number(delaiRendu), commentaireBureau: commentaireBureau.trim() });
       setFile(null);
       if (fileInputRef.current) fileInputRef.current.value = '';
+      setCommentaireBureau('');
       onVersionCreated();
       setShowVersionModal(false);
       }, 'devisVersion')}

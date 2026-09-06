@@ -4,9 +4,20 @@ import { DevisVersionDTO } from '../types';
 export const getDevisVersions = async (etudeId: number): Promise<DevisVersionDTO[]> =>
   (await api.get(`/etude/${etudeId}/devis-versions`)).data ?? [];
 
-export const proposerDevisVersion = async (etudeId: number, file: File): Promise<DevisVersionDTO> => {
+export interface NouvelleVersionDevis {
+  prix: number;
+  delaiMaxIntervention: number;
+  delaiMaxRendu: number;
+  commentaireBureau: string;
+}
+
+export const proposerDevisVersion = async (etudeId: number, file: File, version: NouvelleVersionDevis): Promise<DevisVersionDTO> => {
   const data = new FormData();
   data.append('file', file);
+  data.append('prix', String(version.prix));
+  data.append('delaiMaxIntervention', String(version.delaiMaxIntervention));
+  data.append('delaiMaxRendu', String(version.delaiMaxRendu));
+  data.append('commentaireBureau', version.commentaireBureau);
   return (await api.post(`/etude/${etudeId}/devis-versions`, data, {
     // Supprime le Content-Type JSON par défaut ; le navigateur ajoute la boundary multipart.
     headers: { 'Content-Type': undefined as any },

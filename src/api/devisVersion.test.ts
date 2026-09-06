@@ -24,12 +24,16 @@ describe('API des versions de devis', () => {
   it('publie le PDF en multipart sans conserver le Content-Type JSON global', async () => {
     vi.mocked(api.post).mockResolvedValue({ data: { id: 2, numero: 2 } });
     const file = new File(['pdf'], 'v2.pdf', { type: 'application/pdf' });
-    await proposerDevisVersion(8, file);
+    await proposerDevisVersion(8, file, { prix: 1200, delaiMaxIntervention: 4, delaiMaxRendu: 6, commentaireBureau: 'Nouveau périmètre' });
     const [, form] = vi.mocked(api.post).mock.calls[0];
     expect(api.post).toHaveBeenCalledWith('/etude/8/devis-versions', expect.any(FormData), {
       headers: { 'Content-Type': undefined },
     });
     expect((form as FormData).get('file')).toBe(file);
+    expect((form as FormData).get('prix')).toBe('1200');
+    expect((form as FormData).get('delaiMaxIntervention')).toBe('4');
+    expect((form as FormData).get('delaiMaxRendu')).toBe('6');
+    expect((form as FormData).get('commentaireBureau')).toBe('Nouveau périmètre');
   });
 
   it('dépose puis permet au BE de valider ou refuser le devis signé', async () => {
