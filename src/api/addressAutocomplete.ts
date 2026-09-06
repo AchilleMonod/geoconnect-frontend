@@ -4,9 +4,11 @@ import { AddressSuggestionDTO } from '../types';
 export async function searchAddressSuggestions(
   text: string,
   limit = 8,
+  signal?: AbortSignal,
 ): Promise<AddressSuggestionDTO[]> {
   const { data } = await api.get<AddressSuggestionDTO[]>('/adresses/autocomplete', {
     params: { text, limit },
+    signal,
   });
   return data.map(normalizeAddressSuggestion);
 }

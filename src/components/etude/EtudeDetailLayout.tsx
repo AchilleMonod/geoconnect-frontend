@@ -414,7 +414,7 @@ function DocumentsSection({ documents, clientView = false }: Readonly<{ document
           <DocumentList documents={documents.documentsDemandeDevis} showCard={false} />
         </DocumentGroup>
       )}
-      {!clientView && documents.devisPdf && (
+      {documents.devisPdf && (
         <DocumentGroup title="Devis (proposition)">
           <DocumentList documents={[documents.devisPdf]} showCard={false} />
         </DocumentGroup>

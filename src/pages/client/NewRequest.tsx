@@ -18,6 +18,7 @@ import { TerrainAccessQuestions } from '../../components/project/TerrainAccessQu
 import { buildDemandePayload, mapFormFieldsToPayloadBase } from '../../lib/demandePayload';
 import { codePostalRules } from '../../lib/validators';
 import { getFieldMessage } from '../../lib/formErrors';
+import { ConfirmModal } from '../../components/ui/ConfirmModal';
 
 export default function NewRequest() {
   const navigate = useNavigate();
@@ -27,9 +28,10 @@ export default function NewRequest() {
   const [documents, setDocuments] = useState<import('../../constants/documentCategories').TypedDocumentDraft[]>([]);
   const { typesEtude, loading: loadingTypes } = useTypesEtude();
   const [referencesCadastrales, setReferencesCadastrales] = useState<string[]>(['']);
+  const [createdDemandeId, setCreatedDemandeId] = useState<number | null>(null);
 
   const { submit, isSubmitting } = useDemandeSubmission({
-    onSuccess: () => navigate('/client/dashboard'),
+    onSuccess: (demandeId) => demandeId != null ? setCreatedDemandeId(demandeId) : navigate('/client/dashboard'),
     onError: (msg) => setErrorDetails(msg),
   });
 
@@ -68,7 +70,15 @@ export default function NewRequest() {
     }
   };
 
-  return (
+  return (<>
+    {createdDemandeId !== null && <ConfirmModal
+      title="Votre demande a bien été créée"
+      message="Votre demande de devis est maintenant enregistrée. Vous pouvez consulter son détail et suivre les propositions des bureaux d’études."
+      confirmLabel="Voir ma demande"
+      cancelLabel="Retour au tableau de bord"
+      onConfirm={() => navigate(`/client/demande/${createdDemandeId}`)}
+      onCancel={() => navigate('/client/dashboard', { replace: true })}
+    />}
     <div className="max-w-2xl mx-auto py-12 px-4 sm:px-6">
       <div className="mb-8 text-center">
         <h1 className="text-3xl font-bold tracking-tight text-slate-900 mb-2">Nouvelle demande géotechnique</h1>
@@ -189,5 +199,5 @@ export default function NewRequest() {
         </form>
       </Card>
     </div>
-  );
+  </>);
 }

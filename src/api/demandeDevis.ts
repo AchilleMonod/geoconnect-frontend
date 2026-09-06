@@ -2,7 +2,7 @@ import api from './index';
 import { BEDemandePageItemDTO, DemandeDetailDTO, DemandeDevisDTO, PageResponse } from '../types';
 
 export const createDemandeDevis = async (demande: DemandeDevisDTO) => {
-  const { data } = await api.post('/demandeDevis', demande);
+  const { data } = await api.post<{ demandeId?: number; id?: number }>('/demandeDevis', demande);
   return data;
 };
 

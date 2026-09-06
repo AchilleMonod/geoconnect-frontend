@@ -156,6 +156,7 @@ export interface PropositionDevisDTO {
     raisonSociale: string;
     ville?: string;
     profilPublicSlug?: string;
+    noteGlobale?: number;
   };
   demandeDevis?: DemandeDevisDTO;
 }

@@ -40,7 +40,7 @@ export const getPropositionDevisByBureauId = async (bureauId: number): Promise<P
 };
 
 export const accepterPropositionDevis = async (id: number) => {
-  const { data } = await api.patch(`/propositionDevis/${id}/accepter`);
+  const { data } = await api.patch<{ etudeId: number }>(`/propositionDevis/${id}/accepter`);
   return data;
 };
 

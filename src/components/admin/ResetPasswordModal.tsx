@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { PASSWORD_MIN_LENGTH } from '../../lib/validators';
@@ -34,7 +35,7 @@ export function ResetPasswordModal({
     onConfirm(password);
   };
 
-  return (
+  return createPortal((
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <button
         type="button"
@@ -82,7 +83,7 @@ export function ResetPasswordModal({
         </div>
       </div>
     </div>
-  );
+  ), document.body);
 }
 
 

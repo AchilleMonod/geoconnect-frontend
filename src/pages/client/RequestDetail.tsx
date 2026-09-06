@@ -26,6 +26,7 @@ export default function ClientRequestDetail() {
   const [isProcessing, setIsProcessing] = useState<number | null>(null);
   const [confirmAcceptId, setConfirmAcceptId] = useState<number | null>(null);
   const [confirmRefuseId, setConfirmRefuseId] = useState<number | null>(null);
+  const [acceptedEtudeId, setAcceptedEtudeId] = useState<number | null>(null);
   const [isAttachingDocuments, setIsAttachingDocuments] = useState(false);
 
   useEffect(() => {
@@ -51,11 +52,11 @@ export default function ClientRequestDetail() {
   const handleAccept = async (propId: number) => {
     setIsProcessing(propId);
     try {
-      await accepterPropositionDevis(propId);
+      const { etudeId } = await accepterPropositionDevis(propId);
       setPropositions(props => props.map(p =>
         p.id === propId ? { ...p, statut: 'ACCEPTEE' as const } : { ...p, statut: 'REFUSEE' as const }
       ));
-      toastSuccess('Proposition acceptée. L\'étude va démarrer.');
+      if (etudeId != null) setAcceptedEtudeId(etudeId);
     } catch (err: any) {
       toastError(err?.response?.data?.message ?? err?.message ?? "Erreur lors de l'acceptation.");
     } finally {
@@ -251,6 +252,17 @@ export default function ClientRequestDetail() {
             await handleRefuse(id);
           }}
           onCancel={() => setConfirmRefuseId(null)}
+        />
+      )}
+      {acceptedEtudeId !== null && (
+        <ConfirmModal
+          title="Votre proposition est acceptée"
+          message="Pour permettre au bureau d’études de poursuivre votre dossier, vous devez signer le devis puis téléverser le PDF signé dans l’étude."
+          confirmLabel="Accéder à l’étude"
+          cancelLabel="Fermer"
+          dismissible={false}
+          onConfirm={() => navigate(`/client/etude/${acceptedEtudeId}`)}
+          onCancel={() => setAcceptedEtudeId(null)}
         />
       )}
     </DetailPageShell>

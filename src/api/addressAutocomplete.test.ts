@@ -13,10 +13,12 @@ describe('addressAutocomplete api', () => {
     const suggestions = [{ label: '12 Rue de la Paix 75001 Paris', rue: '12 Rue de la Paix' }];
     (api.get as ReturnType<typeof vi.fn>).mockResolvedValueOnce({ data: suggestions });
 
-    const result = await searchAddressSuggestions('12 rue paix', 5);
+    const controller = new AbortController();
+    const result = await searchAddressSuggestions('12 rue paix', 5, controller.signal);
 
     expect(api.get).toHaveBeenCalledWith('/adresses/autocomplete', {
       params: { text: '12 rue paix', limit: 5 },
+      signal: controller.signal,
     });
     expect(result).toEqual(suggestions);
   });

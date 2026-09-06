@@ -1,10 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import ClientRequestDetail from './RequestDetail';
 import { getDemandeDetail, updateDemandeDevis } from '../../api/demandeDevis';
 import { uploadDocuments } from '../../api/document';
+import { accepterPropositionDevis } from '../../api/propositionDevis';
 
 vi.mock('../../api/demandeDevis', () => ({
   getDemandeDetail: vi.fn(),
@@ -36,6 +37,10 @@ function renderPage(url = '/client/demande/12') {
   );
 }
 
+function LocationProbe() {
+  return <output data-testid="location">{useLocation().pathname}</output>;
+}
+
 describe('ClientRequestDetail — identité du bureau', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -45,6 +50,31 @@ describe('ClientRequestDetail — identité du bureau', () => {
       description: 'Projet de maison individuelle',
       adresseProjet: { ville: 'Nantes', codePostal: '44000' },
     }, propositions: [], bureauEtudeId: null });
+  });
+
+  it('redirige vers le stepper de l’étude après acceptation du devis', async () => {
+    const user = userEvent.setup();
+    vi.mocked(accepterPropositionDevis).mockResolvedValue({ etudeId: 42 });
+    vi.mocked(getDemandeDetail).mockResolvedValue({
+      demande: { id: 12, adresseProjet: { ville: 'Nantes', codePostal: '44000' } },
+      propositions: [{ id: 43, prix: 1600, delaiMaxRendu: 3, statut: 'EN_ATTENTE', bureauEtude: { id: 8, raisonSociale: 'Sols & Structures' } }],
+      bureauEtudeId: null,
+    });
+
+    render(
+      <MemoryRouter initialEntries={['/client/demande/12']}>
+        <Routes>
+          <Route path="/client/demande/:id" element={<ClientRequestDetail />} />
+          <Route path="/client/etude/:id" element={<LocationProbe />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await user.click(await screen.findByRole('button', { name: 'Accepter' }));
+    await user.click(screen.getByRole('button', { name: "Accepter l'offre" }));
+
+    await waitFor(() => expect(accepterPropositionDevis).toHaveBeenCalledWith(43));
+    await user.click(await screen.findByRole('button', { name: 'Accéder à l’étude' }));
+    expect(await screen.findByTestId('location')).toHaveTextContent('/client/etude/42');
   });
 
   it('affiche le nom réel, la ville et le lien vers la fiche publique', async () => {

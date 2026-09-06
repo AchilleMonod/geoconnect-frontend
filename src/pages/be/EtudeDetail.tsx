@@ -200,6 +200,7 @@ export function DevisNegotiationBE({ etudeId, devisSigneId, run, onVersionCreate
 }>) {
   const [file, setFile] = useState<File | null>(null);
   const [showValidationModal, setShowValidationModal] = useState(false);
+  const [showVersionModal, setShowVersionModal] = useState(false);
   const [validationLoading, setValidationLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const fileInputId = `nouveau-devis-${etudeId}`;
@@ -242,12 +243,21 @@ export function DevisNegotiationBE({ etudeId, devisSigneId, run, onVersionCreate
     </div>
     <input ref={fileInputRef} id={fileInputId} type="file" accept="application/pdf" aria-label="Nouveau devis PDF" className="hidden" onChange={e => setFile(e.target.files?.[0] ?? null)} />
     <p className="text-xs text-slate-500">Le prix et les délais convenus restent inchangés. Ce PDF remplacera la version précédente auprès du client.</p>
-    <Button disabled={!file} onClick={() => file && run(async () => {
+    <Button disabled={!file} onClick={() => file && setShowVersionModal(true)}>Publier la nouvelle version</Button>
+    {showVersionModal && file && <ConfirmModal
+      title="Confirmer la publication"
+      message="Êtes-vous sûr de vouloir publier cette nouvelle version du devis ? Elle remplacera la version précédente auprès du client."
+      confirmLabel="Publier la nouvelle version"
+      isLoading={false}
+      onConfirm={() => void run(async () => {
       await proposerDevisVersion(etudeId, file);
       setFile(null);
       if (fileInputRef.current) fileInputRef.current.value = '';
       onVersionCreated();
-    }, 'devisVersion')}>Publier la nouvelle version</Button>
+      setShowVersionModal(false);
+      }, 'devisVersion')}
+      onCancel={() => setShowVersionModal(false)}
+    />}
   </CardContent></Card>;
 }
 

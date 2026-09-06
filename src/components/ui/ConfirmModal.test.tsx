@@ -104,20 +104,20 @@ describe('ConfirmModal — callbacks', () => {
 describe('ConfirmModal — variant', () => {
   it('applique la bordure slate par défaut (variant absent)', () => {
     const { container } = renderModal();
-    const modal = container.querySelector('.border') as HTMLElement;
+    const modal = document.body.querySelector('.border') as HTMLElement;
     expect(modal.className).toContain('border-slate-200');
   });
 
   it('applique la bordure slate avec variant="default"', () => {
     const { container } = renderModal({ variant: 'default' });
-    const modal = container.querySelector('.border') as HTMLElement;
+    const modal = document.body.querySelector('.border') as HTMLElement;
     expect(modal.className).toContain('border-slate-200');
   });
 
   it('applique la bordure orange avec variant="warning"', () => {
     const { container } = renderModal({ variant: 'warning' });
     // La div de la modale porte la bordure
-    const modal = container.querySelector('.border-orange-300') as HTMLElement;
+    const modal = document.body.querySelector('.border-orange-300') as HTMLElement;
     expect(modal).toBeTruthy();
   });
 
@@ -148,14 +148,14 @@ describe('ConfirmModal — prop extra', () => {
   it('n\'affiche pas de contenu extra si la prop est absente', () => {
     const { container } = renderModal();
     // Aucun élément avec data-testid lié à l'extra
-    expect(container.querySelector('[data-testid="bandeau-warning"]')).toBeNull();
+    expect(document.body.querySelector('[data-testid="bandeau-warning"]')).toBeNull();
   });
 
   it('affiche l\'extra entre le message et les boutons', () => {
     const { container } = renderModal({
       extra: <div data-testid="extra-content">Contenu additionnel</div>,
     });
-    const modal = container.querySelector('.relative.bg-white') as HTMLElement;
+    const modal = document.body.querySelector('.relative.bg-white') as HTMLElement;
     const children = Array.from(modal.children);
     const extraIndex    = children.findIndex(c => c.querySelector('[data-testid="extra-content"]') !== null);
     const buttonsIndex  = children.findIndex(c => c.classList.contains('flex') && c.querySelector('button'));
