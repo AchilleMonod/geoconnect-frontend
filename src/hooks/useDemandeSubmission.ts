@@ -6,7 +6,7 @@ import { isAxiosError } from 'axios';
 import { TypedDocumentDraft } from '../constants/documentCategories';
 
 interface UseDemandeSubmissionOptions {
-  onSuccess: () => void;
+  onSuccess: (demandeId?: number) => void;
   onError: (message: string) => void;
 }
 
@@ -28,7 +28,7 @@ export function useDemandeSubmission(
     setIsSubmitting(true);
     try {
       const docsDevisIds = await uploadDocuments(documents.map(document => document.file));
-      await createDemandeDevis({
+      const created = await createDemandeDevis({
         ...payload,
         docsDevisIds,
         documentsDemande: documents.map((document, index) => ({
@@ -37,7 +37,7 @@ export function useDemandeSubmission(
           precision: document.precision,
         })),
       });
-      options.onSuccess();
+      options.onSuccess(created.demandeId ?? created.id);
     } catch (err: unknown) {
       let msg = 'Une erreur est survenue.';
       if (isAxiosError(err) && err.response?.data?.message) {

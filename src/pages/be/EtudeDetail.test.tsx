@@ -165,7 +165,7 @@ describe('BEStepActions — avertissement date future', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: /intervention réalisée/i }));
     // Le bandeau orange contient le chiffre et le mot "jour"
-    const bandeauOrange = container.querySelector('.bg-orange-50');
+    const bandeauOrange = document.body.querySelector('.bg-orange-50');
     expect(bandeauOrange).toBeTruthy();
     expect(bandeauOrange!.textContent).toContain('5');
     expect(bandeauOrange!.textContent).toMatch(/jours?/i);
@@ -177,7 +177,7 @@ describe('BEStepActions — avertissement date future', () => {
       dateIntervention: dateInDays(1),
     });
     fireEvent.click(screen.getByRole('button', { name: /intervention réalisée/i }));
-    const bandeauOrange = container.querySelector('.bg-orange-50');
+    const bandeauOrange = document.body.querySelector('.bg-orange-50');
     expect(bandeauOrange).toBeTruthy();
     // Le textContent normalisé doit contenir "1 jour" sans "1 jours"
     expect(bandeauOrange!.textContent).toContain('1 jour');
@@ -223,7 +223,7 @@ describe('BEStepActions — variant de la modale', () => {
       dateIntervention: dateInDays(10),
     });
     fireEvent.click(screen.getByRole('button', { name: /intervention réalisée/i }));
-    expect(container.querySelector('.border-orange-300')).toBeTruthy();
+    expect(document.body.querySelector('.border-orange-300')).toBeTruthy();
   });
 
   it('la modale est en variant "default" (bordure slate) quand la date est passée', () => {
@@ -232,8 +232,8 @@ describe('BEStepActions — variant de la modale', () => {
       dateIntervention: dateInDays(-2),
     });
     fireEvent.click(screen.getByRole('button', { name: /intervention réalisée/i }));
-    expect(container.querySelector('.border-slate-200')).toBeTruthy();
-    expect(container.querySelector('.border-orange-300')).toBeNull();
+    expect(document.body.querySelector('.border-slate-200')).toBeTruthy();
+    expect(document.body.querySelector('.border-orange-300')).toBeNull();
   });
 
   it('la modale est en variant "default" quand aucune date n\'est définie', () => {
@@ -242,8 +242,8 @@ describe('BEStepActions — variant de la modale', () => {
       dateIntervention: undefined,
     });
     fireEvent.click(screen.getByRole('button', { name: /intervention réalisée/i }));
-    expect(container.querySelector('.border-slate-200')).toBeTruthy();
-    expect(container.querySelector('.border-orange-300')).toBeNull();
+    expect(document.body.querySelector('.border-slate-200')).toBeTruthy();
+    expect(document.body.querySelector('.border-orange-300')).toBeNull();
   });
 });
 

@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { Button } from './Button';
 
 /** Variante visuelle de la modale :
@@ -40,7 +41,7 @@ export function ConfirmModal({
   const headerClass =
     variant === 'warning' ? 'text-orange-700' : 'text-slate-800';
 
-  return (
+  return createPortal((
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Fond flouté */}
       <div
@@ -49,8 +50,8 @@ export function ConfirmModal({
         onClick={dismissible ? onCancel : undefined}
       />
       {/* Contenu */}
-      <div className={`relative bg-white rounded-lg shadow-2xl border ${borderClass} max-w-md w-full mx-4 p-6 z-10`}>
-        <h3 className={`text-base font-bold mb-3 ${headerClass}`}>{title}</h3>
+      <div className={`relative bg-white rounded-lg shadow-2xl border ${borderClass} max-w-md w-full mx-4 p-6 z-10`} role="dialog" aria-modal="true" aria-labelledby="confirm-modal-title">
+        <h3 id="confirm-modal-title" className={`text-base font-bold mb-3 ${headerClass}`}>{title}</h3>
         <p className="text-sm text-slate-600 mb-4">{message}</p>
         {extra && <div className="mb-5">{extra}</div>}
         <div className="flex justify-end gap-2">
@@ -63,6 +64,6 @@ export function ConfirmModal({
         </div>
       </div>
     </div>
-  );
+  ), document.body);
 }
 

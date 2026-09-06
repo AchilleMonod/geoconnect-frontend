@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { ProposalCarousel } from './ProposalCarousel';
 
 const proposals = [
-  { id: 1, statut: 'EN_ATTENTE' as const, prix: 1200, delaiMaxRendu: 3, documentId: 11, bureauEtude: { id: 1, raisonSociale: 'Premier bureau' } },
+  { id: 1, statut: 'EN_ATTENTE' as const, prix: 1200, delaiMaxIntervention: 2, delaiMaxRendu: 3, documentId: 11, bureauEtude: { id: 1, raisonSociale: 'Premier bureau', profilPublicSlug: 'premier-bureau' } },
   { id: 2, statut: 'EN_ATTENTE' as const, prix: 1500, delaiMaxRendu: 4, bureauEtude: { id: 2, raisonSociale: 'Second bureau' } },
 ];
 
@@ -25,13 +25,13 @@ describe('ProposalCarousel', () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it('sélectionne la proposition demandée et permet une navigation bornée', () => {
+  it('sélectionne la proposition demandée et permet une navigation bornée', async () => {
     renderCarousel(2);
     expect(screen.getByText('Second bureau')).toBeTruthy();
     expect(screen.getByRole('button', { name: /proposition suivante/i })).toBeDisabled();
     fireEvent.click(screen.getByRole('button', { name: /proposition précédente/i }));
     expect(screen.getByText('Premier bureau')).toBeTruthy();
-    expect(screen.getByTitle(/prévisualisation du devis de premier bureau/i)).toHaveAttribute('src', '/api/documents/11/download/devis.pdf');
+    expect(await screen.findByText(/prévisualisation du devis indisponible/i)).toBeTruthy();
   });
 
   it('déclenche les demandes de confirmation sans appliquer directement la décision', () => {
@@ -40,6 +40,14 @@ describe('ProposalCarousel', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Refuser' }));
     expect(onAccept).toHaveBeenCalledWith(1);
     expect(onRefuse).toHaveBeenCalledWith(1);
+  });
+
+  it('affiche les informations complètes de la proposition', () => {
+    renderCarousel();
+    expect(screen.getByText('1200 €')).toBeTruthy();
+    expect(screen.getByText(/2 sem/)).toBeTruthy();
+    expect(screen.getByText(/3 sem/)).toBeTruthy();
+    expect(screen.getByRole('link', { name: /consulter la fiche de premier bureau/i })).toHaveAttribute('href', '/bureaux-etudes/premier-bureau?retour=%2Fclient%2Fdemande%2F12');
   });
 
   it('affiche les états terminaux sans actions', () => {

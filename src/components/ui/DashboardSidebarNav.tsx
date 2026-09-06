@@ -140,7 +140,7 @@ export function DashboardSidebarNav({ sections, activeItemId, onItemChange, full
 
       <aside
         id="dashboard-mobile-sidebar"
-        className={`group/sidebar fixed bottom-0 left-0 top-14 z-50 w-[86vw] max-w-xs overflow-x-hidden overflow-y-auto bg-[#f7f4ed]/98 p-3 shadow-xl transition-[width,transform] duration-300 ease-out lg:z-30 lg:max-w-none ${fullHeight ? 'lg:top-0 lg:bottom-0 lg:w-16 lg:border-r lg:border-stone-200 lg:p-1 lg:shadow-sm lg:hover:w-72' : 'lg:sticky lg:top-20 lg:h-fit lg:w-72 lg:rounded-xl lg:border lg:border-slate-200 lg:bg-slate-50/80 lg:shadow-sm'} ${
+        className={`group/sidebar fixed bottom-0 left-0 top-14 z-50 w-[86vw] max-w-xs overflow-x-hidden overflow-y-auto bg-[#f7f4ed]/98 p-3 shadow-xl transition-[width,transform] duration-300 ease-out lg:z-30 lg:max-w-none ${fullHeight ? 'lg:top-0 lg:bottom-6 lg:w-16 lg:border-r lg:border-stone-200 lg:p-1 lg:shadow-sm lg:hover:w-72' : 'lg:sticky lg:top-20 lg:h-fit lg:w-72 lg:rounded-xl lg:border lg:border-slate-200 lg:bg-slate-50/80 lg:shadow-sm'} ${
           isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >

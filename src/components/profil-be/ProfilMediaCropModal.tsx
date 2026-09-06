@@ -1,4 +1,5 @@
 import { KeyboardEvent as ReactKeyboardEvent, PointerEvent as ReactPointerEvent, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Crop, LoaderCircle, Maximize2, RotateCcw, X, ZoomIn, ZoomOut } from 'lucide-react';
 import { calculateCropPlacement, clampPan, cropImage, panAfterDrag } from './mediaCrop';
 
@@ -83,7 +84,7 @@ export function ProfilMediaCropModal({ file, type, onCancel, onConfirm, onChange
     }
   };
 
-  return (
+  return createPortal((
     <dialog open aria-modal="true" aria-labelledby="crop-title" className="fixed inset-0 z-50 m-0 flex h-full max-h-none w-full max-w-none items-center justify-center border-0 bg-stone-950/65 p-4 backdrop-blur-sm">
       <div className="w-full max-w-3xl rounded-3xl bg-[#faf9f6] p-5 shadow-2xl sm:p-7">
         <header className="flex items-start justify-between gap-4"><div><p className="text-xs font-bold uppercase tracking-[.18em] text-[#688239]">Identité visuelle</p><h2 id="crop-title" className="mt-1 text-xl font-black text-stone-950">Recadrer {type === 'LOGO' ? 'le logo' : 'le bandeau'}</h2><p className="mt-1 text-sm text-stone-500">Déplacez et zoomez l’image pour définir la zone visible.</p></div><button type="button" aria-label="Fermer" disabled={processing} onClick={onCancel} className="rounded-full p-2 text-stone-500 hover:bg-stone-200"><X className="h-5 w-5" /></button></header>
@@ -103,5 +104,5 @@ export function ProfilMediaCropModal({ file, type, onCancel, onConfirm, onChange
         <footer className="mt-6 flex flex-col-reverse justify-between gap-3 sm:flex-row"><button type="button" disabled={processing} onClick={onChangeSource} className="rounded-xl border border-[#a9bc83] bg-[#eef2e6] px-4 py-2.5 text-sm font-bold text-[#526c2c] hover:bg-[#e2ead3]">Changer {type === 'LOGO' ? 'le logo' : 'le bandeau'}</button><div className="flex justify-end gap-3"><button type="button" disabled={processing} onClick={onCancel} className="rounded-xl border border-stone-300 bg-white px-4 py-2.5 text-sm font-bold text-stone-700 hover:bg-stone-100">Annuler</button><button type="button" disabled={!image || processing} onClick={() => void confirm()} className="inline-flex items-center gap-2 rounded-xl bg-[#688239] px-5 py-2.5 text-sm font-bold text-white hover:bg-[#526c2c] disabled:opacity-50">{processing ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Crop className="h-4 w-4" />}Utiliser cette image</button></div></footer>
       </div>
     </dialog>
-  );
+  ), document.body);
 }

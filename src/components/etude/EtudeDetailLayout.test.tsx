@@ -73,4 +73,24 @@ describe('EtudeDetailLayout — navigation profonde', () => {
     expect(screen.getAllByText('12 août 2026')).toHaveLength(2);
     expect(screen.getByText('20 août 2026')).toBeTruthy();
   });
+
+  it('affiche le devis de la proposition dans les documents côté client', () => {
+    render(
+      <MemoryRouter initialEntries={['/client/etude/4?section=documents']}>
+        <ToastProvider>
+          <EtudeDetailLayout
+            etude={etude}
+            documents={{ documentsDemandeDevis: [], devisPdf: { id: 12, nomTelechargement: 'devis.pdf' } }}
+            error={null}
+            backTo="/client/dashboard"
+            headerLabel="Suivi"
+            infoCard={<div>Intervenant</div>}
+            etatRole="CLIENT"
+            renderActions={() => null}
+          />
+        </ToastProvider>
+      </MemoryRouter>,
+    );
+    expect(screen.getByText('devis.pdf')).toBeTruthy();
+  });
 });

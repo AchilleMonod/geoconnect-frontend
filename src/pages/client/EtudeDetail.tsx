@@ -74,20 +74,27 @@ export default function ClientEtudeDetail() {
 
       {/* Carte devis signé — visible tant que le document n'est pas déposé */}
       {etude.id != null && <DevisVersionsCard etudeId={etude.id} />}
-      <DevisSigneCard
-        devisSigneId={etude.devisSigneId}
-        isLoading={devisSigneLoading}
-        onUpload={(file) => withAction(() => deposerDernierDevisSigne(etude.id, file), 'devisSigne')}
-      />
     </>
   );
 
-  const actionBanner = clientMustAct(etat) && etude.dateIntervention ? (
-    <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 flex items-center gap-2 text-orange-800 text-xs font-semibold">
-      <AlertCircle className="w-4 h-4 shrink-0" />
-      Une action de votre part est requise pour faire avancer ce dossier.
+  const actionBanner = (
+    <div className="space-y-4">
+      {etude.devisSigneId == null && (
+        <DevisSigneCard
+          devisSigneId={etude.devisSigneId}
+          isLoading={devisSigneLoading}
+          prominent
+          onUpload={(file) => withAction(() => deposerDernierDevisSigne(etude.id, file), 'devisSigne')}
+        />
+      )}
+      {clientMustAct(etat) && etude.dateIntervention && (
+        <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 flex items-center gap-2 text-orange-800 text-xs font-semibold">
+          <AlertCircle className="w-4 h-4 shrink-0" />
+          Une action de votre part est requise pour faire avancer ce dossier.
+        </div>
+      )}
     </div>
-  ) : undefined;
+  );
 
   const backTo = etat === 'PAIEMENT_EFFECTUE'
     ? '/client/dashboard?tab=ARCHIVES'
@@ -124,6 +131,7 @@ interface DevisSigneCardProps {
   devisSigneId?: number;
   isLoading: boolean;
   onUpload: (file: File) => Promise<void>;
+  prominent?: boolean;
 }
 
 /**
@@ -131,7 +139,7 @@ interface DevisSigneCardProps {
  * - Tant que le devis signé n'est pas déposé : zone d'alerte avec upload.
  * - Une fois déposé : confirmation discrète verte.
  */
-function DevisSigneCard({ devisSigneId, isLoading, onUpload }: Readonly<DevisSigneCardProps>) {
+function DevisSigneCard({ devisSigneId, isLoading, onUpload, prominent = false }: Readonly<DevisSigneCardProps>) {
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
 
@@ -164,17 +172,17 @@ function DevisSigneCard({ devisSigneId, isLoading, onUpload }: Readonly<DevisSig
 
   /* Devis non encore déposé → alerte bien visible */
   return (
-    <Card className="border-amber-300">
+    <Card className={prominent ? 'border-amber-300 border-2 shadow-md' : 'border-amber-300'}>
       <CardHeader className="pb-2 border-b border-amber-200 bg-amber-50 rounded-t-lg">
         <CardTitle className="text-[10px] font-bold uppercase tracking-wider text-amber-700 flex items-center gap-1.5">
           <FilePen className="w-3.5 h-3.5" /> Devis signé requis
         </CardTitle>
       </CardHeader>
       <CardContent className="pt-3 space-y-3">
-        <p className="text-xs text-amber-800 leading-relaxed">
+        <p className={prominent ? 'text-sm text-amber-900 leading-relaxed' : 'text-xs text-amber-800 leading-relaxed'}>
           <strong>Action requise&nbsp;:</strong> veuillez imprimer le devis, le signer, puis le déposer ici afin que le bureau d'études puisse planifier votre intervention.
         </p>
-        <div className="space-y-2">
+        <div className={prominent ? 'space-y-3' : 'space-y-2'}>
           <input
             type="file"
             accept="application/pdf"
