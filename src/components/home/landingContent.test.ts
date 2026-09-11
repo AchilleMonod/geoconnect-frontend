@@ -17,7 +17,6 @@ describe('landingContent', () => {
       'ASSAINISSEMENT',
       'G0',
       'G1_ES_PGC',
-      'G1_ELAN',
       'G2_AVP',
       'G2_PRO',
       'G5',

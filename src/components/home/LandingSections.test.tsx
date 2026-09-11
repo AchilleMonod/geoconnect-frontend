@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { LandingSections } from './LandingSections';
 
 describe('LandingSections', () => {
-  it('affiche les trois sections et transmet la mission choisie', async () => {
+  it('affiche les sections prévues et transmet la mission choisie', async () => {
     const onQuoteRequest = vi.fn();
     const user = userEvent.setup();
     render(<LandingSections onQuoteRequest={onQuoteRequest} />);
@@ -58,7 +58,7 @@ describe('LandingSections', () => {
   it('recentre la carte sélectionnée sans imposer de snap au scroll', async () => {
     const user = userEvent.setup();
     render(<LandingSections onQuoteRequest={vi.fn()} />);
-    const cards = screen.getAllByRole('article');
+    const cards = within(screen.getByRole('region', { name: 'Les études que nous proposons' })).getAllByRole('article');
     const scrollIntoView = vi.spyOn(Element.prototype, 'scrollIntoView');
 
     await user.click(within(cards[1]).getByRole('button', { name: /afficher G0/i }));
